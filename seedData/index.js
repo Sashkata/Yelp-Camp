@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 const axios = require('axios');
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const token = process.env.MAPBOX_TOKEN;
+const geocoder = mbxGeocoding({ accessToken: token });
+
 const Campground = require('../models/campground');
 const cities = require('./cities');
 const { descriptors, places } = require('./seedHelpers');
@@ -110,7 +114,14 @@ const seedDB = async () => {
     const camp = new Campground({
       location: `${city}, ${state}`,
       title: `${descriptor} ${place}`,
-
+      geometry: (
+        await geocoder
+          .forwardGeocode({
+            query: `${city}, ${state}`,
+            limit: 1,
+          })
+          .send()
+      ).body.features[0].geometry,
       price: price,
       author: '630c016d58f6e509ffd3407a',
       description:
