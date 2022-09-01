@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const { storage } = require('../cloudinary');
+const upload = multer({ storage });
+
 const wrapAsync = require('../utils/wrapAsync');
 const {
   isLoggedIn,
@@ -12,7 +16,11 @@ const campgrounds = require('../controllers/campgrounds');
 router
   .route('/')
   .get(wrapAsync(campgrounds.index))
-  .post(isLoggedIn, validateCampground, wrapAsync(campgrounds.createNew));
+  // .post(isLoggedIn, validateCampground, wrapAsync(campgrounds.createNew));
+  .post(upload.array('image'), (req, res) => {
+    console.log(req.body, req.files);
+    res.send('Success');
+  });
 
 router.get('/new', isLoggedIn, campgrounds.renderNewForm);
 
