@@ -12,6 +12,7 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const localStrategy = require('passport-local');
 const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
 
 const ExpressError = require('./utils/ExpressError');
 const campgroundRoutes = require('./routes/campgrounds');
@@ -62,6 +63,54 @@ passport.serializeUser(User.serializeUser()); //Adds user to session
 passport.deserializeUser(User.deserializeUser()); //Removes user from session
 
 app.use(flash());
+
+const scriptSrcUrls = [
+  'https://stackpath.bootstrapcdn.com/',
+  'https://api.tiles.mapbox.com/',
+  'https://api.mapbox.com/',
+  'https://kit.fontawesome.com/',
+  'https://cdnjs.cloudflare.com/',
+  'https://cdn.jsdelivr.net',
+];
+//This is the array that needs added to
+const styleSrcUrls = [
+  'https://kit-free.fontawesome.com/',
+  'https://api.mapbox.com/',
+  'https://api.tiles.mapbox.com/',
+  'https://fonts.googleapis.com/',
+  'https://use.fontawesome.com/',
+  'https://cdn.jsdelivr.net',
+];
+const connectSrcUrls = [
+  'https://api.mapbox.com/',
+  'https://a.tiles.mapbox.com/',
+  'https://b.tiles.mapbox.com/',
+  'https://events.mapbox.com/',
+];
+const fontSrcUrls = [];
+
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [],
+      connectSrc: ["'self'", ...connectSrcUrls],
+      scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      workerSrc: ["'self'", 'blob:'],
+      objectSrc: [],
+      imgSrc: [
+        "'self'",
+        'blob:',
+        'data:',
+        `https://res.cloudinary.com/${process.env.CLOUD_NAME}/`, //SHOULD MATCH YOUR CLOUDINARY ACCOUNT!
+        'https://images.unsplash.com/',
+      ],
+      fontSrc: ["'self'", ...fontSrcUrls],
+      mediaSrc: [`https://res.cloudinary.com/${process.env.CLOUD_NAME}/`],
+      childSrc: ['blob:'],
+    },
+  }),
+);
 
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
