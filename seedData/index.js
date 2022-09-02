@@ -101,7 +101,7 @@ const imageSeeds = [
 
 const seedDB = async () => {
   await Campground.deleteMany({});
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 200; i++) {
     const place = sample(places);
     const descriptor = sample(descriptors);
     const { city, state, latitude, longitude } = sample(cities);
@@ -120,8 +120,8 @@ const seedDB = async () => {
         'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eaque est, alias maxime esse, doloremque quod necessitatibus perferendis quibusdam cumque quas ad quis praesentium a unde exercitationem eligendi odio quia adipisci.',
       images: [
         {
-          url: imageSeeds[i].url,
-          filename: imageSeeds[i].filename,
+          url: imageSeeds[i % 20].url,
+          filename: imageSeeds[i % 20].filename,
         },
       ],
     });
